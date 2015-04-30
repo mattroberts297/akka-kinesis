@@ -1,9 +1,9 @@
 package org.scalaq.akka.aws
 
 import akka.actor.{Props, Actor}
-import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
+import com.amazonaws.services.kinesis.{AmazonKinesisAsync, AmazonKinesisAsyncClient}
 
-class KinesisManager extends Actor {
+class KinesisManager(underlyingFactory: => AmazonKinesisAsync = new AmazonKinesisAsyncClient()) extends Actor {
   import Kinesis._
   override def receive: Receive = {
     case CreateClient => try {
