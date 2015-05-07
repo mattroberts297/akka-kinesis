@@ -1,4 +1,4 @@
-package org.scalaq.akka.aws
+package org.scalat.akka.aws
 
 import com.amazonaws.AmazonWebServiceRequest
 import com.amazonaws.handlers.AsyncHandler

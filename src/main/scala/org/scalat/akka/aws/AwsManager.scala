@@ -1,4 +1,4 @@
-package org.scalaq.akka.aws
+package org.scalat.akka.aws
 
 import akka.actor.{Props, Actor}
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync, AmazonKinesisAsyncClient}

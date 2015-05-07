@@ -1,23 +1,22 @@
-package org.scalaq.akka.aws
+package org.scalat.akka.aws
 
 import akka.actor.{Terminated, ActorRef, Actor}
 import com.amazonaws.services.kinesis.AmazonKinesisAsync
 import com.amazonaws.services.kinesis.model.{ListStreamsRequest, ListStreamsResult => UnderlyingListStreamsResult}
-import org.scalaq.akka.aws.Aws._
+import org.scalat.akka.aws.Aws._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Promise
 import scala.util.{Failure, Success}
 
 class KinesisClient(commander: ActorRef, underlying: AmazonKinesisAsync) extends Actor {
+  import context._
   context watch commander
   commander ! KinesisResult
 
   override def receive: Receive = {
-    case c: Command => {
-      case listStreams: ListStreams => handle(listStreams)
-      case describeStream: DescribeStream => ???
-    }
+    case listStreams: ListStreams => handle(listStreams)
+    case describeStream: DescribeStream => ???
     case Terminated(`commander`) => context.stop(self)
   }
 
