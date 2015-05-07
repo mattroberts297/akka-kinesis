@@ -1,6 +1,6 @@
 lazy val root = (project in file(".")).settings(
-  name := "akka-kinesis",
-  organization := "org.scalaq.akka",
+  name := "akka-aws",
+  organization := "org.scalat.akka",
   version := "0.1.0",
   scalaVersion := "2.11.5",
   libraryDependencies ++= Seq(
