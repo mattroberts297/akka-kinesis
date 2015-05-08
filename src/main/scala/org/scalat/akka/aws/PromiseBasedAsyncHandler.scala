@@ -11,3 +11,10 @@ class PromiseBasedAsyncHandler[Request <: AmazonWebServiceRequest, Response](
 
   override def onSuccess(request: Request, result: Response): Unit = promise.success(result)
 }
+
+object PromiseBasedAsyncHandler {
+  def apply[Request <: AmazonWebServiceRequest, Response](
+      promise: Promise[Response]): PromiseBasedAsyncHandler[Request, Response] = {
+    new PromiseBasedAsyncHandler(promise)
+  }
+}
