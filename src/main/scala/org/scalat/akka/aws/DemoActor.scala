@@ -29,6 +29,10 @@ class DemoActor extends Actor {
     }
     case result: DescribeStreamResult => {
       log.info(s"received $result")
+      client ! GetShardIterator(result.name, result.shards.head.id, ShardIteratorType.TRIM_HORIZON)
+    }
+    case result: GetShardIteratorResult => {
+      log.info(s"received $result")
       context.system.shutdown()
     }
     case _ => log.info("received unknown message")
