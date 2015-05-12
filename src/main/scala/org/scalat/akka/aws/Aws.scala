@@ -6,7 +6,9 @@ import com.amazonaws.regions.{Regions, Region => UnderlyingRegion}
 /**
  * AWS extension for Akka's IO layer.
  */
-class Aws(private val region: Aws.Region.Value) extends ExtensionId[AwsExt] with ExtensionIdProvider {
+class Aws(private val region: Aws.Region.Value)
+  extends ExtensionId[AwsExt]
+  with ExtensionIdProvider {
 
   override def createExtension(system: ExtendedActorSystem): AwsExt = {
     new AwsExt(system, new AwsSdkFactory(region))
@@ -39,9 +41,28 @@ object Aws {
 
   case object KinesisResult extends Result
 
-  case class ListStreamsResult(streamNames: List[String], hasMoreStreams: Boolean)
+  case class ListStreamsResult(
+      streamNames: List[String],
+      hasMoreStreams: Boolean)
 
-  case class DescribeStreamResult(streamDescription: String) extends Result
+  case class DescribeStreamResult(
+      name: String,
+      arn: String,
+      status: String,
+      shards: List[Shard]) extends Result
+
+  case class Shard(
+      id: String,
+      adjacentParentId: String,
+      parentId: String,
+      hashKeyRange: HashKeyRange,
+      sequenceNumberRange: SequenceNumberRange)
+
+  case class HashKeyRange(firstHashKey: String, lastHashKey: String)
+
+  case class SequenceNumberRange(
+      firstSequenceNumber: String,
+      lastSequenceNumber: String)
 
   object Region {
     sealed trait Value

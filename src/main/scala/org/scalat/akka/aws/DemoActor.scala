@@ -23,7 +23,14 @@ class DemoActor extends Actor {
   }
 
   def hasClient(client: ActorRef): Receive = {
-    case result: ListStreamsResult => log.info(s"received $result")
+    case result: ListStreamsResult => {
+      log.info(s"received $result")
+      client ! DescribeStream(result.streamNames.head)
+    }
+    case result: DescribeStreamResult => {
+      log.info(s"received $result")
+      context.system.shutdown()
+    }
     case _ => log.info("received unknown message")
   }
 }

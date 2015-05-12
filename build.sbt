@@ -6,6 +6,7 @@ lazy val root = (project in file(".")).settings(
   libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-actor" % "2.3.10",
     "com.amazonaws" % "aws-java-sdk-kinesis" % "1.9.33",
+    "com.amazonaws" % "amazon-kinesis-client" % "1.2.1",
     "org.scalatest" %% "scalatest" % "2.2.1" % "test"
   )
 )
