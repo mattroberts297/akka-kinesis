@@ -1,6 +1,7 @@
 package org.scalat.akka.aws
 
 import akka.actor._
+import akka.util.ByteString
 import com.amazonaws.regions.{Regions, Region => UnderlyingRegion}
 
 /**
@@ -43,6 +44,10 @@ object Aws {
       shardIteratorType: ShardIteratorType.Value,
       startingSequenceNumber: Option[String] = None) extends Command
 
+  case class GetRecords(
+      shardIterator: String,
+      limit: Option[Int]) extends Command
+
   // Results
 
   trait Result extends Message
@@ -63,6 +68,8 @@ object Aws {
 
   case class GetShardIteratorResult(shardIterator: String) extends Result
 
+  case class GetRecordsResult(nextShardIterator: String, records: List[Record])
+
   // Models
 
   case class Shard(
@@ -77,6 +84,11 @@ object Aws {
   case class SequenceNumberRange(
       firstSequenceNumber: String,
       lastSequenceNumber: String)
+
+  case class Record(
+      partitionKey: String,
+      sequenceNumber: String,
+      data: ByteString)
 
   // Enumerations
 
