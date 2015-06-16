@@ -53,6 +53,10 @@ class KinesisClient(
     ???
   }
 
+  def putRecords(request: PutRecordsRequest): Future[PutRecordsResponse] = {
+    ???
+  }
+
   def splitShard(request: SplitShardRequest): Future[Unit] = {
     ???
   }

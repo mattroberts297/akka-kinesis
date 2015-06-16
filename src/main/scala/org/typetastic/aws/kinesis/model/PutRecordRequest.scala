@@ -6,5 +6,5 @@ case class PutRecordRequest(
     streamName: String,
     partitionKey: String,
     data: ByteString,
-    sequenceNumberForOrdering: Option[String],
-    explicitHashKey: Option[String])
+    explicitHashKey: Option[String],
+    sequenceNumberForOrdering: Option[String])
