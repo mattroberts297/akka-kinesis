@@ -10,6 +10,7 @@ import com.amazonaws.services.kinesis.model.{SequenceNumberRange => UnderlyingSe
 
 import scala.collection.JavaConverters._
 
+// TODO: More converters. Break out? Change package?
 class ModelConverter {
   def toAws(createStreamRequest: CreateStreamRequest): UnderlyingCreateStreamRequest = {
     new UnderlyingCreateStreamRequest().

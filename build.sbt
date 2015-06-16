@@ -1,5 +1,5 @@
 lazy val root = (project in file(".")).settings(
-  name := "akka-kinesis",
+  name := "aws-kinesis",
   organization := "org.typetastic.akka",
   version := "0.1.0",
   scalaVersion := "2.11.6",
