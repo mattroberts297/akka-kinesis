@@ -1,14 +1,15 @@
 package org.typetastic.aws.kinesis
 
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
-import org.typetastic.aws.handlers.{PromiseHandlerFactory, PromiseHandler}
+import com.amazonaws.services.kinesis.model.{DescribeStreamResult => UnderlyingDescribeStreamResult}
+import org.typetastic.aws.handlers.PromiseHandlerFactory
 import org.typetastic.aws.kinesis.model._
 
 import scala.concurrent.{ExecutionContext, Promise, Future}
 
 class KinesisClient(
     val underlying: Underlying,
-    val converter: Converter,
+    val converter: ModelConverter,
     val factory: PromiseHandlerFactory)(
     implicit ec: ExecutionContext) {
   import converter._
@@ -16,13 +17,43 @@ class KinesisClient(
 
   def createStream(request: CreateStreamRequest): Future[Unit] = {
     val promise = Promise[Void]()
-    underlying.createStreamAsync(convert(request), create(promise))
+    underlying.createStreamAsync(toAws(request), create(promise))
     promise.future.map(_ => Unit)
   }
 
   def deleteStream(request: DeleteStreamRequest): Future[Unit] = {
     val promise = Promise[Void]()
-    underlying.deleteStreamAsync(convert(request), create(promise))
+    underlying.deleteStreamAsync(toAws(request), create(promise))
     promise.future.map(_ => Unit)
+  }
+
+  def describeStream(request: DescribeStreamRequest): Future[DescribeStreamResponse] = {
+    val promise = Promise[UnderlyingDescribeStreamResult]()
+    underlying.describeStreamAsync(toAws(request), create(promise))
+    promise.future.map(fromAws)
+  }
+
+  def getRecords(request: GetRecordsRequest): Future[GetRecordsResponse] = {
+    ???
+  }
+
+  def getShardIterator(request: GetShardIteratorRequest): Future[GetShardIteratorResponse] = {
+    ???
+  }
+
+  def listStreams(request: ListStreamsRequest): Future[ListStreamsResponse] = {
+    ???
+  }
+
+  def mergeShards(request: MergeShardsRequest): Future[Unit] = {
+    ???
+  }
+
+  def putRecord(request: PutRecordRequest): Future[PutRecordResponse] = {
+    ???
+  }
+
+  def splitShard(request: SplitShardRequest): Future[Unit] = {
+    ???
   }
 }

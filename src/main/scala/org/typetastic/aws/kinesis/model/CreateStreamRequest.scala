@@ -1,3 +1,3 @@
 package org.typetastic.aws.kinesis.model
 
-case class CreateStreamRequest(shardCount: Int, streamName: String)
+case class CreateStreamRequest(streamName: String, shardCount: Int)
