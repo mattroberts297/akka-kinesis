@@ -7,6 +7,9 @@ import com.amazonaws.services.kinesis.model.{DescribeStreamResult => UnderlyingD
 import com.amazonaws.services.kinesis.model.{Shard => UnderlyingShard}
 import com.amazonaws.services.kinesis.model.{HashKeyRange => UnderlyingHashKeyRange}
 import com.amazonaws.services.kinesis.model.{SequenceNumberRange => UnderlyingSequenceNumberRange}
+import com.amazonaws.services.kinesis.model.{GetRecordsRequest => UnderlyingGetRecordsRequest}
+import com.amazonaws.services.kinesis.model.{GetRecordsResult => UnderlyingGetRecordsResult}
+import com.amazonaws.services.kinesis.model.{Record => UnderlyingRecord}
 
 import scala.collection.JavaConverters._
 
@@ -27,6 +30,13 @@ class ModelConverter {
     val underlying = new UnderlyingDescribeStreamRequest()
     underlying.setStreamName(request.streamName)
     request.exclusiveStartShardId.map(underlying.setExclusiveStartShardId)
+    request.limit.map(new java.lang.Integer(_)).map(underlying.setLimit)
+    underlying
+  }
+
+  def toAws(request: GetRecordsRequest): UnderlyingGetRecordsRequest = {
+    val underlying = new UnderlyingGetRecordsRequest()
+    underlying.setShardIterator(request.shardIterator)
     request.limit.map(new java.lang.Integer(_)).map(underlying.setLimit)
     underlying
   }
@@ -62,6 +72,22 @@ class ModelConverter {
     SequenceNumberRange(
       underlying.getStartingSequenceNumber,
       underlying.getEndingSequenceNumber
+    )
+  }
+
+  def fromAws(underlying: UnderlyingGetRecordsResult): GetRecordsResponse = {
+    GetRecordsResponse(
+      underlying.getNextShardIterator,
+      underlying.getRecords.asScala.toList.map(fromAws)
+    )
+  }
+
+  def fromAws(underlying: UnderlyingRecord): Record = {
+    import akka.util.ByteString
+    Record(
+      underlying.getPartitionKey,
+      underlying.getSequenceNumber,
+      ByteString(underlying.getData)
     )
   }
 }

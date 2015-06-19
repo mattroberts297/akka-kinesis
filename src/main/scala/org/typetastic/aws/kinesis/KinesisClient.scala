@@ -2,6 +2,7 @@ package org.typetastic.aws.kinesis
 
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
 import com.amazonaws.services.kinesis.model.{DescribeStreamResult => UnderlyingDescribeStreamResult}
+import com.amazonaws.services.kinesis.model.{GetRecordsResult => UnderlyingGetRecordsResponse}
 import org.typetastic.aws.handlers.PromiseHandlerFactory
 import org.typetastic.aws.kinesis.model._
 
@@ -35,7 +36,9 @@ class KinesisClient(
   }
 
   def getRecords(request: GetRecordsRequest): Future[GetRecordsResponse] = {
-    ???
+    val promise = Promise[UnderlyingGetRecordsResponse]
+    underlying.getRecordsAsync(toAws(request), create(promise))
+    promise.future.map(fromAws)
   }
 
   def getShardIterator(request: GetShardIteratorRequest): Future[GetShardIteratorResponse] = {
