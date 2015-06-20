@@ -21,10 +21,10 @@ import com.amazonaws.services.kinesis.model.{PutRecordsRequest => UnderlyingPutR
 import com.amazonaws.services.kinesis.model.{PutRecordsResult => UnderlyingPutRecordsResult}
 import com.amazonaws.services.kinesis.model.{PutRecordsRequestEntry => UnderlyingPutRecordsRequestEntry}
 import com.amazonaws.services.kinesis.model.{PutRecordsResultEntry => UnderlyingPutRecordsResultEntry}
+import com.amazonaws.services.kinesis.model.{SplitShardRequest => UnderlyingSplitShardRequest}
 
 import scala.collection.JavaConverters._
 
-// TODO: More converters. Break out? Change package?
 class ModelConverter {
   def toAws(createStreamRequest: CreateStreamRequest): UnderlyingCreateStreamRequest = {
     new UnderlyingCreateStreamRequest().
@@ -98,6 +98,14 @@ class ModelConverter {
     underlying.setPartitionKey(entry.partitionKey)
     underlying.setData(entry.data.toByteBuffer)
     entry.explicitHashKey.map(underlying.setExplicitHashKey)
+    underlying
+  }
+
+  def toAws(request: SplitShardRequest): UnderlyingSplitShardRequest = {
+    val underlying = new UnderlyingSplitShardRequest()
+    underlying.setStreamName(request.streamName)
+    underlying.setShardToSplit(request.shardToSplit)
+    underlying.setNewStartingHashKey(request.newStartingHashKey)
     underlying
   }
 

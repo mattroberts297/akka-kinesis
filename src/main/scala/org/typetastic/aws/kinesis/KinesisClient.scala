@@ -53,8 +53,8 @@ class KinesisClient(
     invoke(request)(toAws)(underlying.putRecordsAsync)(fromAws)
   }
 
-  def splitShard(request: SplitShardRequest): Future[Unit] = {
-    ???
+  def splitShard(request: SplitShardRequest): Future[SplitShardResponse] = {
+    invoke(request)(toAws)(underlying.splitShardAsync)(Void => SplitShardResponse())
   }
 
   private def invoke
