@@ -1,11 +1,8 @@
 package org.typetastic.aws.kinesis
 
+import com.amazonaws.AmazonWebServiceRequest
+import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
-import com.amazonaws.services.kinesis.model.{DescribeStreamResult => UnderlyingDescribeStreamResult}
-import com.amazonaws.services.kinesis.model.{GetRecordsResult => UnderlyingGetRecordsResult}
-import com.amazonaws.services.kinesis.model.{GetShardIteratorResult => UnderlyingGetShardIteratorResult}
-import com.amazonaws.services.kinesis.model.{ListStreamsResult => UnderlyingListStreamsResult}
-import com.amazonaws.services.kinesis.model.{PutRecordResult => UnderlyingPutRecordResult}
 import org.typetastic.aws.handlers.PromiseHandlerFactory
 import org.typetastic.aws.kinesis.model._
 
@@ -20,59 +17,54 @@ class KinesisClient(
   import converter._
   import factory._
 
-  def createStream(request: CreateStreamRequest): Future[Unit] = {
-    val promise = Promise[Void]()
-    underlying.createStreamAsync(toAws(request), create(promise))
-    promise.future.map(_ => Unit)
+  def createStream(request: CreateStreamRequest): Future[CreateStreamResponse] = {
+    invoke(request)(toAws)(underlying.createStreamAsync)(Void => CreateStreamResponse())
   }
 
-  def deleteStream(request: DeleteStreamRequest): Future[Unit] = {
-    val promise = Promise[Void]()
-    underlying.deleteStreamAsync(toAws(request), create(promise))
-    promise.future.map(_ => Unit)
+  def deleteStream(request: DeleteStreamRequest): Future[DeleteStreamResponse] = {
+    invoke(request)(toAws)(underlying.deleteStreamAsync)(Void => DeleteStreamResponse())
   }
 
   def describeStream(request: DescribeStreamRequest): Future[DescribeStreamResponse] = {
-    val promise = Promise[UnderlyingDescribeStreamResult]()
-    underlying.describeStreamAsync(toAws(request), create(promise))
-    promise.future.map(fromAws)
+    invoke(request)(toAws)(underlying.describeStreamAsync)(fromAws)
   }
 
   def getRecords(request: GetRecordsRequest): Future[GetRecordsResponse] = {
-    val promise = Promise[UnderlyingGetRecordsResult]()
-    underlying.getRecordsAsync(toAws(request), create(promise))
-    promise.future.map(fromAws)
+    invoke(request)(toAws)(underlying.getRecordsAsync)(fromAws)
   }
 
   def getShardIterator(request: GetShardIteratorRequest): Future[GetShardIteratorResponse] = {
-    val promise = Promise[UnderlyingGetShardIteratorResult]()
-    underlying.getShardIteratorAsync(toAws(request), create(promise))
-    promise.future.map(fromAws)
+    invoke(request)(toAws)(underlying.getShardIteratorAsync)(fromAws)
   }
 
   def listStreams(request: ListStreamsRequest): Future[ListStreamsResponse] = {
-    val promise = Promise[UnderlyingListStreamsResult]()
-    underlying.listStreamsAsync(toAws(request), create(promise))
-    promise.future.map(fromAws)
+    invoke(request)(toAws)(underlying.listStreamsAsync)(fromAws)
   }
 
   def mergeShards(request: MergeShardsRequest): Future[MergeShardsResponse] = {
-    val promise = Promise[Void]()
-    underlying.mergeShardsAsync(toAws(request), create(promise))
-    promise.future.map(_ => MergeShardsResponse())
+    invoke(request)(toAws)(underlying.mergeShardsAsync)(Void => MergeShardsResponse())
   }
 
   def putRecord(request: PutRecordRequest): Future[PutRecordResponse] = {
-    val promise = Promise[UnderlyingPutRecordResult]()
-    underlying.putRecordAsync(toAws(request), create(promise))
-    promise.future.map(fromAws)
+    invoke(request)(toAws)(underlying.putRecordAsync)(fromAws)
   }
 
   def putRecords(request: PutRecordsRequest): Future[PutRecordsResponse] = {
-    ???
+    invoke(request)(toAws)(underlying.putRecordsAsync)(fromAws)
   }
 
   def splitShard(request: SplitShardRequest): Future[Unit] = {
     ???
+  }
+
+  private def invoke
+      [Request, UnderlyingRequest <: AmazonWebServiceRequest, UnderlyingResponse, Response]
+      (request: Request)
+      (toAws: Request => UnderlyingRequest)
+      (thunk: (UnderlyingRequest, AsyncHandler[UnderlyingRequest, UnderlyingResponse]) => _)
+      (fromAws: UnderlyingResponse => Response): Future[Response] = {
+    val promise = Promise[UnderlyingResponse]()
+    thunk(toAws(request), create[UnderlyingRequest, UnderlyingResponse](promise))
+    promise.future.map(fromAws)
   }
 }

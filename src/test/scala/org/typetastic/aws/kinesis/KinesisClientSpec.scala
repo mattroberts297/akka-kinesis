@@ -4,11 +4,13 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{WordSpec, Matchers}
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
 import org.typetastic.aws.handlers.{PromiseHandler, PromiseHandlerFactory}
-import org.typetastic.aws.kinesis.model.{DeleteStreamRequest, ModelConverter, CreateStreamRequest}
+import org.typetastic.aws.kinesis.model._
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import com.amazonaws.services.kinesis.model.{CreateStreamRequest => UnderlyingCreateStreamRequest}
 import com.amazonaws.services.kinesis.model.{DeleteStreamRequest => UnderlyingDeleteStreamRequest}
+import com.amazonaws.services.kinesis.model.{DescribeStreamRequest => UnderlyingDescribeStreamRequest}
+import com.amazonaws.services.kinesis.model.{DescribeStreamResult => UnderlyingDescribeStreamResult}
 
 import scala.concurrent.Promise
 
@@ -38,6 +40,17 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
         verify(converter).toAws(request)
         verify(underlying).deleteStreamAsync(underlyingRequest, handler)
       }
+
+      "invoke describeStreamAsync on the underlying client" in new DescribeStreamContext {
+        // Arrange.
+        when(converter.toAws(request)).thenReturn(underlyingRequest)
+        when(factory.create[UnderlyingDescribeStreamRequest, UnderlyingDescribeStreamResult](any[Promise[UnderlyingDescribeStreamResult]])).thenReturn(handler)
+        // Act.
+        client.describeStream(request)
+        // Assert
+        verify(converter).toAws(request)
+        verify(underlying).describeStreamAsync(underlyingRequest, handler)
+      }
     }
   }
 
@@ -60,5 +73,11 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     val request = DeleteStreamRequest("Test")
     val underlyingRequest = mock[UnderlyingDeleteStreamRequest]
     val handler = mock[PromiseHandler[UnderlyingDeleteStreamRequest, Void]]
+  }
+
+  trait DescribeStreamContext extends Context {
+    val request = DescribeStreamRequest("TestName", Some("TestId"), Some(1))
+    val underlyingRequest = mock[UnderlyingDescribeStreamRequest]
+    val handler = mock[PromiseHandler[UnderlyingDescribeStreamRequest, UnderlyingDescribeStreamResult]]
   }
 }

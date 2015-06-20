@@ -1,3 +1,3 @@
 package org.typetastic.aws.kinesis.model
 
-case object DeleteStreamResponse
+case class DeleteStreamResponse()

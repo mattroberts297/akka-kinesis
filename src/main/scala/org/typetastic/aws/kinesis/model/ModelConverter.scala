@@ -17,6 +17,10 @@ import com.amazonaws.services.kinesis.model.{ListStreamsResult => UnderlyingList
 import com.amazonaws.services.kinesis.model.{MergeShardsRequest => UnderlyingMergeShardsRequest}
 import com.amazonaws.services.kinesis.model.{PutRecordRequest => UnderlyingPutRecordRequest}
 import com.amazonaws.services.kinesis.model.{PutRecordResult => UnderlyingPutRecordResult}
+import com.amazonaws.services.kinesis.model.{PutRecordsRequest => UnderlyingPutRecordsRequest}
+import com.amazonaws.services.kinesis.model.{PutRecordsResult => UnderlyingPutRecordsResult}
+import com.amazonaws.services.kinesis.model.{PutRecordsRequestEntry => UnderlyingPutRecordsRequestEntry}
+import com.amazonaws.services.kinesis.model.{PutRecordsResultEntry => UnderlyingPutRecordsResultEntry}
 
 import scala.collection.JavaConverters._
 
@@ -82,6 +86,21 @@ class ModelConverter {
     underlying
   }
 
+  def toAws(request: PutRecordsRequest): UnderlyingPutRecordsRequest = {
+    val underlying = new UnderlyingPutRecordsRequest()
+    underlying.setStreamName(request.streamName)
+    underlying.setRecords(request.records.map(toAws).asJava)
+    underlying
+  }
+
+  def toAws(entry: PutRecordsRequestEntry): UnderlyingPutRecordsRequestEntry = {
+    val underlying = new UnderlyingPutRecordsRequestEntry()
+    underlying.setPartitionKey(entry.partitionKey)
+    underlying.setData(entry.data.toByteBuffer)
+    entry.explicitHashKey.map(underlying.setExplicitHashKey)
+    underlying
+  }
+
   def fromAws(underlying: UnderlyingDescribeStreamResult): DescribeStreamResponse = {
     val description = underlying.getStreamDescription
     DescribeStreamResponse(
@@ -142,5 +161,17 @@ class ModelConverter {
 
   def fromAws(underlying: UnderlyingPutRecordResult): PutRecordResponse = {
     PutRecordResponse(underlying.getShardId, underlying.getSequenceNumber)
+  }
+
+  def fromAws(underlying: UnderlyingPutRecordsResult): PutRecordsResponse = {
+    PutRecordsResponse(underlying.getFailedRecordCount, underlying.getRecords.asScala.toList.map(fromAws))
+  }
+
+  def fromAws(underlying: UnderlyingPutRecordsResultEntry): PutRecordsResponseEntry = {
+    if (underlying.getErrorCode == null) {
+      PutRecordsResponseSuccessEntry(underlying.getShardId, underlying.getSequenceNumber)
+    } else {
+      PutRecordsResponseFailureEntry(underlying.getErrorCode, underlying.getErrorMessage)
+    }
   }
 }

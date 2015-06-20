@@ -4,7 +4,7 @@ case class PutRecordsResponse(
     failedRecordCount: Int,
     records: List[PutRecordsResponseEntry])
 
-trait PutRecordsResponseEntry
+sealed trait PutRecordsResponseEntry
 
 case class PutRecordsResponseSuccessEntry(
     shardId: String,
