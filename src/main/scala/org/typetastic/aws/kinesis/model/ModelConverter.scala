@@ -10,6 +10,13 @@ import com.amazonaws.services.kinesis.model.{SequenceNumberRange => UnderlyingSe
 import com.amazonaws.services.kinesis.model.{GetRecordsRequest => UnderlyingGetRecordsRequest}
 import com.amazonaws.services.kinesis.model.{GetRecordsResult => UnderlyingGetRecordsResult}
 import com.amazonaws.services.kinesis.model.{Record => UnderlyingRecord}
+import com.amazonaws.services.kinesis.model.{GetShardIteratorRequest => UnderlyingGetShardIteratorRequest}
+import com.amazonaws.services.kinesis.model.{GetShardIteratorResult => UnderlyingGetShardIteratorResult}
+import com.amazonaws.services.kinesis.model.{ListStreamsRequest => UnderlyingListStreamsRequest}
+import com.amazonaws.services.kinesis.model.{ListStreamsResult => UnderlyingListStreamsResult}
+import com.amazonaws.services.kinesis.model.{MergeShardsRequest => UnderlyingMergeShardsRequest}
+import com.amazonaws.services.kinesis.model.{PutRecordRequest => UnderlyingPutRecordRequest}
+import com.amazonaws.services.kinesis.model.{PutRecordResult => UnderlyingPutRecordResult}
 
 import scala.collection.JavaConverters._
 
@@ -38,6 +45,40 @@ class ModelConverter {
     val underlying = new UnderlyingGetRecordsRequest()
     underlying.setShardIterator(request.shardIterator)
     request.limit.map(new java.lang.Integer(_)).map(underlying.setLimit)
+    underlying
+  }
+
+  def toAws(request: GetShardIteratorRequest): UnderlyingGetShardIteratorRequest = {
+    val underlying = new UnderlyingGetShardIteratorRequest()
+    underlying.setStreamName(request.streamName)
+    underlying.setShardId(request.shardId)
+    underlying.setShardIteratorType(ShardIteratorType.underlying(request.shardIteratorType))
+    request.startingSequenceNumber.map(underlying.setStartingSequenceNumber)
+    underlying
+  }
+
+  def toAws(request: ListStreamsRequest): UnderlyingListStreamsRequest = {
+    val underlying = new UnderlyingListStreamsRequest()
+    underlying.setExclusiveStartStreamName(request.exclusiveStartStreamName)
+    request.limit.map(new java.lang.Integer(_)).map(underlying.setLimit)
+    underlying
+  }
+
+  def toAws(request: MergeShardsRequest): UnderlyingMergeShardsRequest = {
+    val underlying = new UnderlyingMergeShardsRequest()
+    underlying.setStreamName(request.streamName)
+    underlying.setShardToMerge(request.shardToMerge)
+    underlying.setAdjacentShardToMerge(request.adjacentShardToMerge)
+    underlying
+  }
+
+  def toAws(request: PutRecordRequest): UnderlyingPutRecordRequest = {
+    val underlying = new UnderlyingPutRecordRequest()
+    underlying.setStreamName(request.streamName)
+    underlying.setPartitionKey(request.partitionKey)
+    underlying.setData(request.data.toByteBuffer)
+    request.explicitHashKey.map(underlying.setExplicitHashKey)
+    request.sequenceNumberForOrdering.map(underlying.setSequenceNumberForOrdering)
     underlying
   }
 
@@ -89,5 +130,17 @@ class ModelConverter {
       underlying.getSequenceNumber,
       ByteString(underlying.getData)
     )
+  }
+
+  def fromAws(underlying: UnderlyingGetShardIteratorResult): GetShardIteratorResponse = {
+    GetShardIteratorResponse(underlying.getShardIterator)
+  }
+
+  def fromAws(underlying: UnderlyingListStreamsResult): ListStreamsResponse = {
+    ListStreamsResponse(underlying.getHasMoreStreams, underlying.getStreamNames.asScala.toList)
+  }
+
+  def fromAws(underlying: UnderlyingPutRecordResult): PutRecordResponse = {
+    PutRecordResponse(underlying.getShardId, underlying.getSequenceNumber)
   }
 }
