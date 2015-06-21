@@ -5,6 +5,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{WordSpec, Matchers}
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
 import org.typetastic.aws.handlers.{PromiseHandler, PromiseHandlerFactory}
+import org.typetastic.aws.kinesis.converters.KinesisConverter
 import org.typetastic.aws.kinesis.model._
 import org.mockito.Mockito._
 import org.mockito.Matchers._
@@ -186,7 +187,7 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
 
   trait Context {
     val underlying = mock[Underlying]
-    val converter = mock[ModelConverter]
+    val converter = mock[KinesisConverter]
     val factory = mock[PromiseHandlerFactory]
 
     import scala.concurrent.ExecutionContext.Implicits.global

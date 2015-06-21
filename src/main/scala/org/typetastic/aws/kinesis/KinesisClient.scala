@@ -4,13 +4,14 @@ import com.amazonaws.AmazonWebServiceRequest
 import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
 import org.typetastic.aws.handlers.PromiseHandlerFactory
+import org.typetastic.aws.kinesis.converters.KinesisConverter
 import org.typetastic.aws.kinesis.model._
 
 import scala.concurrent.{ExecutionContext, Promise, Future}
 
 class KinesisClient(
     val underlying: Underlying,
-    val converter: ModelConverter,
+    val converter: KinesisConverter,
     val factory: PromiseHandlerFactory)(
     implicit ec: ExecutionContext) {
   import converter._

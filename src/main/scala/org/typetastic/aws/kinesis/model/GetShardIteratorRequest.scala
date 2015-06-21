@@ -19,4 +19,11 @@ object ShardIteratorType {
     case TRIM_HORIZON => "TRIM_HORIZON"
     case LATEST => "LATEST"
   }
+
+  def apply(string: String): Value = string match {
+    case "AT_SEQUENCE_NUMBER" => AT_SEQUENCE_NUMBER
+    case "AFTER_SEQUENCE_NUMBER" => AFTER_SEQUENCE_NUMBER
+    case "TRIM_HORIZON" => TRIM_HORIZON
+    case "LATEST" => LATEST
+  }
 }
