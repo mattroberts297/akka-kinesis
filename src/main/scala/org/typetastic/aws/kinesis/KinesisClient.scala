@@ -8,7 +8,6 @@ import org.typetastic.aws.kinesis.model._
 
 import scala.concurrent.{ExecutionContext, Promise, Future}
 
-// TODO Implement after converters.
 class KinesisClient(
     val underlying: Underlying,
     val converter: ModelConverter,
@@ -61,10 +60,10 @@ class KinesisClient(
       [Request, UnderlyingRequest <: AmazonWebServiceRequest, UnderlyingResponse, Response]
       (request: Request)
       (toAws: Request => UnderlyingRequest)
-      (thunk: (UnderlyingRequest, AsyncHandler[UnderlyingRequest, UnderlyingResponse]) => _)
+      (method: (UnderlyingRequest, AsyncHandler[UnderlyingRequest, UnderlyingResponse]) => _)
       (fromAws: UnderlyingResponse => Response): Future[Response] = {
     val promise = Promise[UnderlyingResponse]()
-    thunk(toAws(request), create[UnderlyingRequest, UnderlyingResponse](promise))
+    method(toAws(request), create[UnderlyingRequest, UnderlyingResponse](promise))
     promise.future.map(fromAws)
   }
 }
