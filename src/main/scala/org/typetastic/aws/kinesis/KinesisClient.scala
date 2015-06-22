@@ -57,6 +57,7 @@ class KinesisClient(
     invoke(request)(toAws)(underlying.splitShardAsync)(Void => SplitShardResponse())
   }
 
+  // TODO PromiseHandler should be responsible for creating Promise and providing Future. Then create factory for that.
   private def invoke
       [Request, UnderlyingRequest <: AmazonWebServiceRequest, UnderlyingResponse, Response]
       (request: Request)

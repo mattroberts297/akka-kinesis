@@ -22,15 +22,16 @@ trait FromAwsKinesis {
       description.getStreamName,
       description.getStreamARN,
       StreamStatus(description.getStreamStatus),
-      description.getShards.asScala.toList.map(fromAws)
+      description.getShards.asScala.toList.map(fromAws),
+      description.getHasMoreShards
     )
   }
 
   def fromAws(underlying: UnderlyingShard): Shard = {
     Shard(
       underlying.getShardId,
-      underlying.getAdjacentParentShardId,
       underlying.getParentShardId,
+      underlying.getAdjacentParentShardId,
       fromAws(underlying.getHashKeyRange),
       fromAws(underlying.getSequenceNumberRange)
     )

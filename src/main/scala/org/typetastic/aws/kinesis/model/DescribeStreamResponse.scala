@@ -4,12 +4,13 @@ case class DescribeStreamResponse(
     streamName: String,
     streamArn: String,
     streamStatus: StreamStatus.Value,
-    shards: List[Shard])
+    shards: List[Shard],
+    hasMoreShards: Boolean)
 
 case class Shard(
     id: String,
-    adjacentParentId: String,
     parentId: String,
+    adjacentParentId: String,
     hashKeyRange: HashKeyRange,
     sequenceNumberRange: SequenceNumberRange)
 
