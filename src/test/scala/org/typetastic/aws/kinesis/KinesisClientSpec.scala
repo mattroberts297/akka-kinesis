@@ -1,6 +1,10 @@
 package org.typetastic.aws.kinesis
 
+import java.util.concurrent.{Future => JFuture}
+
 import com.amazonaws.AmazonWebServiceRequest
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{WordSpec, Matchers}
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
@@ -26,7 +30,10 @@ import com.amazonaws.services.kinesis.model.{PutRecordsRequest => UnderlyingPutR
 import com.amazonaws.services.kinesis.model.{PutRecordsResult => UnderlyingPutRecordsResult}
 import com.amazonaws.services.kinesis.model.{SplitShardRequest => UnderlyingSplitShardRequest}
 
-import scala.concurrent.Promise
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
   val classUnderTest = classOf[KinesisClient].getSimpleName
@@ -34,210 +41,237 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
   s"$classUnderTest::createStream" should {
     "invoke createStreamAsync" in new CreateStreamContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[UnderlyingCreateStreamRequest, Void](any[Promise[Void]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingCreateStreamRequest, Void]()).thenReturn(handler)
+      when(mockUnderlying.createStreamAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
       // Act.
-      client.createStream(request)
+      val resultFuture = client.createStream(mockRequest)
+      val result = Await.result(resultFuture, timeout)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).createStreamAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).createStreamAsync(mockUnderlyingRequest, handler)
     }
   }
 
   s"$classUnderTest::deleteStream" should {
     "invoke deleteStreamAsync" in new DeleteStreamContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[UnderlyingDeleteStreamRequest, Void](any[Promise[Void]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingDeleteStreamRequest, Void]()).thenReturn(handler)
+      when(mockUnderlying.deleteStreamAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
       // Act.
-      client.deleteStream(request)
+      val resultFuture = client.deleteStream(mockRequest)
+      val result = Await.result(resultFuture, timeout)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).deleteStreamAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).deleteStreamAsync(mockUnderlyingRequest, handler)
     }
   }
 
   s"$classUnderTest::describeStream" should {
     "invoke describeStreamAsync" in new DescribeStreamContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[
-        UnderlyingDescribeStreamRequest,
-        UnderlyingDescribeStreamResult](
-        any[Promise[UnderlyingDescribeStreamResult]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingDescribeStreamRequest, UnderlyingDescribeStreamResult]()).thenReturn(handler)
+      when(mockUnderlying.describeStreamAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
-      client.describeStream(request)
+      val resultFuture = client.describeStream(mockRequest)
+      val result = Await.result(resultFuture, timeout)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).describeStreamAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).describeStreamAsync(mockUnderlyingRequest, handler)
+      verify(mockConverter).fromAws(mockUnderlyingResponse)
+      result should be (mockResponse)
     }
   }
 
   s"$classUnderTest::getRecords" should {
     "invoke getRecordsAsync" in new GetRecordsContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[
-        UnderlyingGetRecordsRequest,
-        UnderlyingGetRecordsResult](
-        any[Promise[UnderlyingGetRecordsResult]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingGetRecordsRequest, UnderlyingGetRecordsResult]()).thenReturn(mockHandler)
+      when(mockHandler.future).thenReturn(mockFuture)
       // Act.
-      client.getRecords(request)
+      client.getRecords(mockRequest)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).getRecordsAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).getRecordsAsync(mockUnderlyingRequest, mockHandler)
     }
   }
 
   s"$classUnderTest::getShardIterator" should {
     "invoke getShardIteratorAsync" in new GetShardIteratorContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[
-        UnderlyingGetShardIteratorRequest,
-        UnderlyingGetShardIteratorResult](
-          any[Promise[UnderlyingGetShardIteratorResult]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingGetShardIteratorRequest, UnderlyingGetShardIteratorResult]()).thenReturn(mockHandler)
+      when(mockHandler.future).thenReturn(mockFuture)
       // Act.
-      client.getShardIterator(request)
+      client.getShardIterator(mockRequest)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).getShardIteratorAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).getShardIteratorAsync(mockUnderlyingRequest, mockHandler)
     }
   }
 
   s"$classUnderTest::listStreams" should {
     "invoke listStreamsAsync" in new ListStreamsContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[
-        UnderlyingListStreamsRequest,
-        UnderlyingListStreamsResult](
-          any[Promise[UnderlyingListStreamsResult]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingListStreamsRequest, UnderlyingListStreamsResult]()).thenReturn(mockHandler)
+      when(mockHandler.future).thenReturn(mockFuture)
       // Act.
-      client.listStreams(request)
+      client.listStreams(mockRequest)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).listStreamsAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).listStreamsAsync(mockUnderlyingRequest, mockHandler)
     }
   }
 
   s"$classUnderTest::mergeShards" should {
     "invoke mergeShardsAsync" in new MergeShardsContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[
-        UnderlyingMergeShardsRequest,
-        Void](
-          any[Promise[Void]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingMergeShardsRequest, Void]()).thenReturn(mockHandler)
+      when(mockHandler.future).thenReturn(mockFuture)
       // Act.
-      client.mergeShards(request)
+      client.mergeShards(mockRequest)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).mergeShardsAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).mergeShardsAsync(mockUnderlyingRequest, mockHandler)
     }
   }
 
   s"$classUnderTest::putRecord" should {
     "invoke putRecordAsync" in new PutRecordContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[
-        UnderlyingPutRecordRequest,
-        UnderlyingPutRecordResult](
-          any[Promise[UnderlyingPutRecordResult]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingPutRecordRequest, UnderlyingPutRecordResult]()).thenReturn(mockHandler)
+      when(mockHandler.future).thenReturn(mockFuture)
       // Act.
-      client.putRecord(request)
+      client.putRecord(mockRequest)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).putRecordAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).putRecordAsync(mockUnderlyingRequest, mockHandler)
     }
   }
 
   s"$classUnderTest::putRecords" should {
     "invoke putRecordsAsync" in new PutRecordsContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[
-        UnderlyingPutRecordsRequest,
-        UnderlyingPutRecordsResult](
-          any[Promise[UnderlyingPutRecordsResult]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingPutRecordsRequest, UnderlyingPutRecordsResult]()).thenReturn(mockHandler)
+      when(mockHandler.future).thenReturn(mockFuture)
       // Act.
-      client.putRecords(request)
+      client.putRecords(mockRequest)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).putRecordsAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).putRecordsAsync(mockUnderlyingRequest, mockHandler)
     }
   }
 
   s"$classUnderTest::splitShard" should {
     "invoke splitShardAsync" in new SplitShardContext {
       // Arrange.
-      when(converter.toAws(request)).thenReturn(underlyingRequest)
-      when(factory.create[
-        UnderlyingSplitShardRequest,
-        Void](
-          any[Promise[Void]])).thenReturn(handler)
+      when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
+      when(mockFactory.create[UnderlyingSplitShardRequest, Void]()).thenReturn(mockHandler)
+      when(mockHandler.future).thenReturn(mockFuture)
       // Act.
-      client.splitShard(request)
+      client.splitShard(mockRequest)
       // Assert.
-      verify(converter).toAws(request)
-      verify(underlying).splitShardAsync(underlyingRequest, handler)
+      verify(mockConverter).toAws(mockRequest)
+      verify(mockUnderlying).splitShardAsync(mockUnderlyingRequest, mockHandler)
     }
   }
 
   trait Context {
-    val underlying = mock[Underlying]
-    val converter = mock[KinesisConverter]
-    val factory = mock[PromiseHandlerFactory]
-
-    import scala.concurrent.ExecutionContext.Implicits.global
-    val client = new KinesisClient(underlying, converter, factory)
+    val mockUnderlying = mock[Underlying]
+    val mockConverter = mock[KinesisConverter]
+    val mockFactory = mock[PromiseHandlerFactory]
+    val client = new KinesisClient(mockUnderlying, mockConverter, mockFactory)
+    val timeout = 500.milliseconds
   }
 
-  class TypedContext[
+  class PartiallyTypedContext[
       Request <: AnyRef : Manifest,
       UnderlyingRequest <: AmazonWebServiceRequest : Manifest,
       UnderlyingResponse : Manifest] extends Context {
-    val request = mock[Request]
-    val underlyingRequest = mock[UnderlyingRequest]
-    val handler = mock[PromiseHandler[UnderlyingRequest, UnderlyingResponse]]
+    val mockJavaFuture = mock[JFuture[UnderlyingResponse]]
+    val mockRequest = mock[Request]
+    val mockUnderlyingRequest = mock[UnderlyingRequest]
+    val mockHandler = mock[PromiseHandler[UnderlyingRequest, UnderlyingResponse]]
+    val handler = PromiseHandler[UnderlyingRequest, UnderlyingResponse]()
+    val mockFuture = mock[Future[UnderlyingResponse]]
   }
 
-  class CreateStreamContext extends TypedContext[CreateStreamRequest, UnderlyingCreateStreamRequest, Void]
+  class FullyTypedContext[
+      Request <: AnyRef : Manifest,
+      Response <: AnyRef : Manifest,
+      UnderlyingRequest <: AmazonWebServiceRequest : Manifest,
+      UnderlyingResponse <: AnyRef : Manifest] extends PartiallyTypedContext[
+      Request,
+      UnderlyingRequest,
+      UnderlyingResponse] {
+    val mockResponse = mock[Response]
+    val mockUnderlyingResponse = mock[UnderlyingResponse]
+    def invokeHandler = new Answer[JFuture[UnderlyingResponse]] {
+      override def answer(invocation: InvocationOnMock): JFuture[UnderlyingResponse] = {
+        handler.onSuccess(mockUnderlyingRequest, mockUnderlyingResponse)
+        mockJavaFuture
+      }
+    }
+  }
 
-  class DeleteStreamContext extends TypedContext[DeleteStreamRequest, UnderlyingDeleteStreamRequest, Void]
+  class CreateStreamContext extends PartiallyTypedContext[CreateStreamRequest, UnderlyingCreateStreamRequest, Void] {
+    def invokeHandler = new Answer[JFuture[Void]] {
+      override def answer(invocation: InvocationOnMock): JFuture[Void] = {
+        handler.onSuccess(mockUnderlyingRequest, null)
+        mockJavaFuture
+      }
+    }
+  }
 
-  class DescribeStreamContext extends TypedContext[
+  class DeleteStreamContext extends PartiallyTypedContext[DeleteStreamRequest, UnderlyingDeleteStreamRequest, Void] {
+    def invokeHandler = new Answer[JFuture[Void]] {
+      override def answer(invocation: InvocationOnMock): JFuture[Void] = {
+        handler.onSuccess(mockUnderlyingRequest, null)
+        mockJavaFuture
+      }
+    }
+  }
+
+  class DescribeStreamContext extends FullyTypedContext[
     DescribeStreamRequest,
+    DescribeStreamResponse,
     UnderlyingDescribeStreamRequest,
     UnderlyingDescribeStreamResult]
 
-  class GetRecordsContext extends TypedContext[
+  class GetRecordsContext extends PartiallyTypedContext[
     GetRecordsRequest,
     UnderlyingGetRecordsRequest,
     UnderlyingGetRecordsResult]
 
-  class GetShardIteratorContext extends TypedContext[
+  class GetShardIteratorContext extends PartiallyTypedContext[
     GetShardIteratorRequest,
     UnderlyingGetShardIteratorRequest,
     UnderlyingGetShardIteratorResult]
 
-  class ListStreamsContext extends TypedContext[
+  class ListStreamsContext extends PartiallyTypedContext[
     ListStreamsRequest,
     UnderlyingListStreamsRequest,
     UnderlyingListStreamsResult]
 
-  class MergeShardsContext extends TypedContext[MergeShardsRequest, UnderlyingMergeShardsRequest, Void]
+  class MergeShardsContext extends PartiallyTypedContext[MergeShardsRequest, UnderlyingMergeShardsRequest, Void]
 
-  class PutRecordContext extends TypedContext[
+  class PutRecordContext extends PartiallyTypedContext[
     PutRecordRequest,
     UnderlyingPutRecordRequest,
     UnderlyingPutRecordResult]
 
-  class PutRecordsContext extends TypedContext[
+  class PutRecordsContext extends PartiallyTypedContext[
     PutRecordsRequest,
     UnderlyingPutRecordsRequest,
     UnderlyingPutRecordsResult]
 
-  class SplitShardContext extends TypedContext[SplitShardRequest, UnderlyingSplitShardRequest, Void]
+  class SplitShardContext extends PartiallyTypedContext[SplitShardRequest, UnderlyingSplitShardRequest, Void]
 }

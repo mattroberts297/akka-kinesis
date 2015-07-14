@@ -3,6 +3,7 @@ package org.typetastic.aws.kinesis
 import com.amazonaws.AmazonWebServiceRequest
 import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
+import org.typetastic.aws.handlers.PromiseHandler
 import org.typetastic.aws.handlers.PromiseHandlerFactory
 import org.typetastic.aws.kinesis.converters.KinesisConverter
 import org.typetastic.aws.kinesis.model._
@@ -62,10 +63,11 @@ class KinesisClient(
       [Request, UnderlyingRequest <: AmazonWebServiceRequest, UnderlyingResponse, Response]
       (request: Request)
       (toAws: Request => UnderlyingRequest)
-      (method: (UnderlyingRequest, AsyncHandler[UnderlyingRequest, UnderlyingResponse]) => _)
+      (method: (UnderlyingRequest, PromiseHandler[UnderlyingRequest, UnderlyingResponse]) => _)
       (fromAws: UnderlyingResponse => Response): Future[Response] = {
-    val promise = Promise[UnderlyingResponse]()
-    method(toAws(request), create[UnderlyingRequest, UnderlyingResponse](promise))
-    promise.future.map(fromAws)
+    val handler = create[UnderlyingRequest, UnderlyingResponse]()
+    val underlyingRequest = toAws(request)
+    method(underlyingRequest, handler)
+    handler.future.map(fromAws)
   }
 }
