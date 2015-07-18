@@ -9,10 +9,10 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{WordSpec, Matchers}
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
 import org.typetastic.aws.handlers.{PromiseHandler, PromiseHandlerFactory}
+import org.typetastic.aws.kinesis.AmazonKinesisAsyncClientWrapper
 import org.typetastic.aws.kinesis.converters.KinesisConverter
 import org.typetastic.aws.kinesis.model._
 import org.mockito.Mockito._
-import org.mockito.Matchers._
 import com.amazonaws.services.kinesis.model.{CreateStreamRequest => UnderlyingCreateStreamRequest}
 import com.amazonaws.services.kinesis.model.{DeleteStreamRequest => UnderlyingDeleteStreamRequest}
 import com.amazonaws.services.kinesis.model.{DescribeStreamRequest => UnderlyingDescribeStreamRequest}
@@ -36,7 +36,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
-  val classUnderTest = classOf[KinesisClient].getSimpleName
+  val classUnderTest = classOf[AmazonKinesisAsyncClientWrapper].getSimpleName
 
   s"$classUnderTest::createStream" should {
     "invoke createStreamAsync" in new CreateStreamContext {
@@ -50,6 +50,7 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
       // Assert.
       verify(mockConverter).toAws(mockRequest)
       verify(mockUnderlying).createStreamAsync(mockUnderlyingRequest, handler)
+      result should be (CreateStreamResponse())
     }
   }
 
@@ -65,6 +66,7 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
       // Assert.
       verify(mockConverter).toAws(mockRequest)
       verify(mockUnderlying).deleteStreamAsync(mockUnderlyingRequest, handler)
+      result should be (DeleteStreamResponse())
     }
   }
 
@@ -90,13 +92,17 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     "invoke getRecordsAsync" in new GetRecordsContext {
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
-      when(mockFactory.create[UnderlyingGetRecordsRequest, UnderlyingGetRecordsResult]()).thenReturn(mockHandler)
-      when(mockHandler.future).thenReturn(mockFuture)
+      when(mockFactory.create[UnderlyingGetRecordsRequest, UnderlyingGetRecordsResult]()).thenReturn(handler)
+      when(mockUnderlying.getRecordsAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
-      client.getRecords(mockRequest)
+      val resultFuture = client.getRecords(mockRequest)
+      val result = Await.result(resultFuture, timeout)
       // Assert.
       verify(mockConverter).toAws(mockRequest)
-      verify(mockUnderlying).getRecordsAsync(mockUnderlyingRequest, mockHandler)
+      verify(mockUnderlying).getRecordsAsync(mockUnderlyingRequest, handler)
+      verify(mockConverter).fromAws(mockUnderlyingResponse)
+      result should be (mockResponse)
     }
   }
 
@@ -104,13 +110,17 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     "invoke getShardIteratorAsync" in new GetShardIteratorContext {
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
-      when(mockFactory.create[UnderlyingGetShardIteratorRequest, UnderlyingGetShardIteratorResult]()).thenReturn(mockHandler)
-      when(mockHandler.future).thenReturn(mockFuture)
+      when(mockFactory.create[UnderlyingGetShardIteratorRequest, UnderlyingGetShardIteratorResult]()).thenReturn(handler)
+      when(mockUnderlying.getShardIteratorAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
-      client.getShardIterator(mockRequest)
+      val resultFuture = client.getShardIterator(mockRequest)
+      val result = Await.result(resultFuture, timeout)
       // Assert.
       verify(mockConverter).toAws(mockRequest)
-      verify(mockUnderlying).getShardIteratorAsync(mockUnderlyingRequest, mockHandler)
+      verify(mockUnderlying).getShardIteratorAsync(mockUnderlyingRequest, handler)
+      verify(mockConverter).fromAws(mockUnderlyingResponse)
+      result should be (mockResponse)
     }
   }
 
@@ -118,13 +128,14 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     "invoke listStreamsAsync" in new ListStreamsContext {
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
-      when(mockFactory.create[UnderlyingListStreamsRequest, UnderlyingListStreamsResult]()).thenReturn(mockHandler)
-      when(mockHandler.future).thenReturn(mockFuture)
+      when(mockFactory.create[UnderlyingListStreamsRequest, UnderlyingListStreamsResult]()).thenReturn(handler)
+      when(mockUnderlying.listStreamsAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       client.listStreams(mockRequest)
       // Assert.
       verify(mockConverter).toAws(mockRequest)
-      verify(mockUnderlying).listStreamsAsync(mockUnderlyingRequest, mockHandler)
+      verify(mockUnderlying).listStreamsAsync(mockUnderlyingRequest, handler)
     }
   }
 
@@ -132,13 +143,13 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     "invoke mergeShardsAsync" in new MergeShardsContext {
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
-      when(mockFactory.create[UnderlyingMergeShardsRequest, Void]()).thenReturn(mockHandler)
-      when(mockHandler.future).thenReturn(mockFuture)
+      when(mockFactory.create[UnderlyingMergeShardsRequest, Void]()).thenReturn(handler)
+      when(mockUnderlying.mergeShardsAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
       // Act.
       client.mergeShards(mockRequest)
       // Assert.
       verify(mockConverter).toAws(mockRequest)
-      verify(mockUnderlying).mergeShardsAsync(mockUnderlyingRequest, mockHandler)
+      verify(mockUnderlying).mergeShardsAsync(mockUnderlyingRequest, handler)
     }
   }
 
@@ -146,13 +157,14 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     "invoke putRecordAsync" in new PutRecordContext {
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
-      when(mockFactory.create[UnderlyingPutRecordRequest, UnderlyingPutRecordResult]()).thenReturn(mockHandler)
-      when(mockHandler.future).thenReturn(mockFuture)
+      when(mockFactory.create[UnderlyingPutRecordRequest, UnderlyingPutRecordResult]()).thenReturn(handler)
+      when(mockUnderlying.putRecordAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       client.putRecord(mockRequest)
       // Assert.
       verify(mockConverter).toAws(mockRequest)
-      verify(mockUnderlying).putRecordAsync(mockUnderlyingRequest, mockHandler)
+      verify(mockUnderlying).putRecordAsync(mockUnderlyingRequest, handler)
     }
   }
 
@@ -160,13 +172,14 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     "invoke putRecordsAsync" in new PutRecordsContext {
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
-      when(mockFactory.create[UnderlyingPutRecordsRequest, UnderlyingPutRecordsResult]()).thenReturn(mockHandler)
-      when(mockHandler.future).thenReturn(mockFuture)
+      when(mockFactory.create[UnderlyingPutRecordsRequest, UnderlyingPutRecordsResult]()).thenReturn(handler)
+      when(mockUnderlying.putRecordsAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       client.putRecords(mockRequest)
       // Assert.
       verify(mockConverter).toAws(mockRequest)
-      verify(mockUnderlying).putRecordsAsync(mockUnderlyingRequest, mockHandler)
+      verify(mockUnderlying).putRecordsAsync(mockUnderlyingRequest, handler)
     }
   }
 
@@ -174,13 +187,13 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     "invoke splitShardAsync" in new SplitShardContext {
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
-      when(mockFactory.create[UnderlyingSplitShardRequest, Void]()).thenReturn(mockHandler)
-      when(mockHandler.future).thenReturn(mockFuture)
+      when(mockFactory.create[UnderlyingSplitShardRequest, Void]()).thenReturn(handler)
+      when(mockUnderlying.splitShardAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
       // Act.
       client.splitShard(mockRequest)
       // Assert.
       verify(mockConverter).toAws(mockRequest)
-      verify(mockUnderlying).splitShardAsync(mockUnderlyingRequest, mockHandler)
+      verify(mockUnderlying).splitShardAsync(mockUnderlyingRequest, handler)
     }
   }
 
@@ -188,7 +201,7 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     val mockUnderlying = mock[Underlying]
     val mockConverter = mock[KinesisConverter]
     val mockFactory = mock[PromiseHandlerFactory]
-    val client = new KinesisClient(mockUnderlying, mockConverter, mockFactory)
+    val client = new AmazonKinesisAsyncClientWrapper(mockUnderlying, mockConverter, mockFactory)
     val timeout = 500.milliseconds
   }
 
@@ -222,7 +235,12 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     }
   }
 
-  class CreateStreamContext extends PartiallyTypedContext[CreateStreamRequest, UnderlyingCreateStreamRequest, Void] {
+  class VoidTypedContext[
+      Request <: AnyRef : Manifest,
+      UnderlyingRequest <: AmazonWebServiceRequest : Manifest] extends PartiallyTypedContext[
+      Request,
+      UnderlyingRequest,
+      Void] {
     def invokeHandler = new Answer[JFuture[Void]] {
       override def answer(invocation: InvocationOnMock): JFuture[Void] = {
         handler.onSuccess(mockUnderlyingRequest, null)
@@ -231,14 +249,9 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     }
   }
 
-  class DeleteStreamContext extends PartiallyTypedContext[DeleteStreamRequest, UnderlyingDeleteStreamRequest, Void] {
-    def invokeHandler = new Answer[JFuture[Void]] {
-      override def answer(invocation: InvocationOnMock): JFuture[Void] = {
-        handler.onSuccess(mockUnderlyingRequest, null)
-        mockJavaFuture
-      }
-    }
-  }
+  class CreateStreamContext extends VoidTypedContext[CreateStreamRequest, UnderlyingCreateStreamRequest]
+
+  class DeleteStreamContext extends VoidTypedContext[DeleteStreamRequest, UnderlyingDeleteStreamRequest]
 
   class DescribeStreamContext extends FullyTypedContext[
     DescribeStreamRequest,
@@ -246,32 +259,37 @@ class KinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
     UnderlyingDescribeStreamRequest,
     UnderlyingDescribeStreamResult]
 
-  class GetRecordsContext extends PartiallyTypedContext[
+  class GetRecordsContext extends FullyTypedContext[
     GetRecordsRequest,
+    GetRecordsResponse,
     UnderlyingGetRecordsRequest,
     UnderlyingGetRecordsResult]
 
-  class GetShardIteratorContext extends PartiallyTypedContext[
+  class GetShardIteratorContext extends FullyTypedContext[
     GetShardIteratorRequest,
+    GetShardIteratorResponse,
     UnderlyingGetShardIteratorRequest,
     UnderlyingGetShardIteratorResult]
 
-  class ListStreamsContext extends PartiallyTypedContext[
+  class ListStreamsContext extends FullyTypedContext[
     ListStreamsRequest,
+    ListStreamsResponse,
     UnderlyingListStreamsRequest,
     UnderlyingListStreamsResult]
 
-  class MergeShardsContext extends PartiallyTypedContext[MergeShardsRequest, UnderlyingMergeShardsRequest, Void]
+  class MergeShardsContext extends VoidTypedContext[MergeShardsRequest, UnderlyingMergeShardsRequest]
 
-  class PutRecordContext extends PartiallyTypedContext[
+  class PutRecordContext extends FullyTypedContext[
     PutRecordRequest,
+    PutRecordResponse,
     UnderlyingPutRecordRequest,
     UnderlyingPutRecordResult]
 
-  class PutRecordsContext extends PartiallyTypedContext[
+  class PutRecordsContext extends FullyTypedContext[
     PutRecordsRequest,
+    PutRecordsResponse,
     UnderlyingPutRecordsRequest,
     UnderlyingPutRecordsResult]
 
-  class SplitShardContext extends PartiallyTypedContext[SplitShardRequest, UnderlyingSplitShardRequest, Void]
+  class SplitShardContext extends VoidTypedContext[SplitShardRequest, UnderlyingSplitShardRequest]
 }
