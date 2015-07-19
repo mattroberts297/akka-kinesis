@@ -2,7 +2,7 @@ package org.typetastic.aws.kinesis.model
 
 case class PutRecordsResponse(
     failedRecordCount: Int,
-    records: List[PutRecordsResponseEntry])
+    records: List[PutRecordsResponseEntry]) extends Event
 
 sealed trait PutRecordsResponseEntry
 

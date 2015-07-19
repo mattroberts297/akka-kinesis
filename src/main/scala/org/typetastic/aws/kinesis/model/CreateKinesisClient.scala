@@ -1,3 +1,3 @@
 package org.typetastic.aws.kinesis.model
 
-case class CreateKinesisClient() extends Command
+case object CreateKinesisClient extends Command

@@ -4,7 +4,7 @@ case class GetShardIteratorRequest(
     streamName: String,
     shardId: String,
     shardIteratorType: ShardIteratorType.Value,
-    startingSequenceNumber: Option[String] = None)
+    startingSequenceNumber: Option[String] = None) extends Command
 
 object ShardIteratorType {
   sealed trait Value

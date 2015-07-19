@@ -5,7 +5,7 @@ case class DescribeStreamResponse(
     streamArn: String,
     streamStatus: StreamStatus.Value,
     shards: List[Shard],
-    hasMoreShards: Boolean)
+    hasMoreShards: Boolean) extends Event
 
 case class Shard(
     id: String,

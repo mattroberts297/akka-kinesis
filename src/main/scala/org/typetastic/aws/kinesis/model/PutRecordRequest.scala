@@ -7,4 +7,4 @@ case class PutRecordRequest(
     partitionKey: String,
     data: ByteString,
     explicitHashKey: Option[String],
-    sequenceNumberForOrdering: Option[String])
+    sequenceNumberForOrdering: Option[String]) extends Command

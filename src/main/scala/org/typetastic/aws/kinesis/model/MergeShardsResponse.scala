@@ -1,3 +1,3 @@
 package org.typetastic.aws.kinesis.model
 
-case class MergeShardsResponse()
+case class MergeShardsResponse() extends Event

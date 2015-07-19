@@ -85,7 +85,7 @@ class ToAwsKinesisSpec extends WordSpec with Matchers {
       val expected = new UnderlyingListStreamsRequest().
         withExclusiveStartStreamName(testExclusiveStartStreamName).
         withLimit(testLimit)
-      val input = ListStreamsRequest(testExclusiveStartStreamName, Some(testLimit))
+      val input = ListStreamsRequest(Some(testExclusiveStartStreamName), Some(testLimit))
       val output = toAws(input)
       output should be (expected)
     }

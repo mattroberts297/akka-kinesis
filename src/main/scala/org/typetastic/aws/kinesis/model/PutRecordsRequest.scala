@@ -4,7 +4,7 @@ import akka.util.ByteString
 
 case class PutRecordsRequest(
     streamName: String,
-    records: List[PutRecordsRequestEntry])
+    records: List[PutRecordsRequestEntry]) extends Command
 
 
 case class PutRecordsRequestEntry(

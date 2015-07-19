@@ -1,3 +1,3 @@
 package org.typetastic.aws.kinesis.model
 
-case class SplitShardResponse()
+case class SplitShardResponse() extends Event

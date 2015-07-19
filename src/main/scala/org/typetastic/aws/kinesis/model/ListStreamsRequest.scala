@@ -1,5 +1,5 @@
 package org.typetastic.aws.kinesis.model
 
 case class ListStreamsRequest(
-    exclusiveStartStreamName: String,
-    limit: Option[Int])
+    exclusiveStartStreamName: Option[String],
+    limit: Option[Int]) extends Command

@@ -1,3 +1,3 @@
 package org.typetastic.aws.kinesis.model
 
-case class PutRecordResponse(shardId: String, sequenceNumber: String)
+case class PutRecordResponse(shardId: String, sequenceNumber: String) extends Event

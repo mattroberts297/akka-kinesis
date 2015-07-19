@@ -1,3 +1,3 @@
 package org.typetastic.aws.kinesis.model
 
-case class CreateStreamResponse()
+case class CreateStreamResponse() extends Event

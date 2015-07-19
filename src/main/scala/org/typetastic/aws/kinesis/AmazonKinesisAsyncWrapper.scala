@@ -1,10 +1,13 @@
 package org.typetastic.aws.kinesis
 
+import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
 import org.typetastic.aws.kinesis.model._
 
 import scala.concurrent.Future
 
 trait AmazonKinesisAsyncWrapper {
+  def underlying: Underlying
+
   def createStream(request: CreateStreamRequest): Future[CreateStreamResponse]
 
   def deleteStream(request: DeleteStreamRequest): Future[DeleteStreamResponse]

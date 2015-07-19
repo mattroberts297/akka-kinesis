@@ -53,7 +53,7 @@ trait ToAwsKinesis {
 
   def toAws(request: ListStreamsRequest): UnderlyingListStreamsRequest = {
     val underlying = new UnderlyingListStreamsRequest()
-    underlying.setExclusiveStartStreamName(request.exclusiveStartStreamName)
+    request.exclusiveStartStreamName.map(underlying.setExclusiveStartStreamName)
     request.limit.map(new java.lang.Integer(_)).map(underlying.setLimit)
     underlying
   }
