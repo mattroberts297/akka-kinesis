@@ -5,7 +5,7 @@ import org.typedsolutions.aws.kinesis.model._
 
 import scala.concurrent.Future
 
-trait AmazonKinesisAsyncWrapper {
+trait AmazonKinesis {
   def underlying: Underlying
 
   def createStream(request: CreateStreamRequest): Future[CreateStreamResponse]

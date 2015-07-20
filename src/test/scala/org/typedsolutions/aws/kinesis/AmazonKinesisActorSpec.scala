@@ -12,8 +12,8 @@ import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
 
 import scala.concurrent.Future
 
-class KinesisClientSpec extends AkkaSpec {
-  val classUnderTest = classOf[KinesisClient].getSimpleName
+class AmazonKinesisActorSpec extends AkkaSpec {
+  val classUnderTest = classOf[AmazonKinesisActor].getSimpleName
 
   s"The $classUnderTest" when {
     s"started" should {
@@ -215,9 +215,9 @@ class KinesisClientSpec extends AkkaSpec {
 
   trait Context extends MockitoSugar {
     val owner = TestProbe()
-    val mockWrapper = mock[AmazonKinesisAsyncWrapper]
+    val mockWrapper = mock[AmazonKinesis]
     val mockUnderlying = mock[Underlying]
-    val client = TestActorRef(Props(classOf[KinesisClient], owner.ref, mockWrapper))
+    val client = TestActorRef(Props(classOf[AmazonKinesisActor], owner.ref, mockWrapper))
   }
 
   abstract class GenericContext[Request <: AnyRef : Manifest, Response <: AnyRef : Manifest] extends Context {

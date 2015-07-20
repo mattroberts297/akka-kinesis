@@ -3,6 +3,8 @@ package org.typedsolutions.aws.kinesis
 import java.util.concurrent.{Future => JFuture}
 
 import com.amazonaws.AmazonWebServiceRequest
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.internal.StaticCredentialsProvider
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mock.MockitoSugar
@@ -34,8 +36,15 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with MockitoSugar {
-  val classUnderTest = classOf[AmazonKinesisAsyncClientWrapper].getSimpleName
+class AmazonKinesisClientSpec extends WordSpec with Matchers with MockitoSugar {
+  val classUnderTest = classOf[AmazonKinesisClient].getSimpleName
+
+  s"$classUnderTest::apply" should {
+    "create an instance" in {
+      val client = AmazonKinesisClient(new StaticCredentialsProvider(new BasicAWSCredentials("access", "secret")))
+      client.getClass should be (classOf[AmazonKinesisClient])
+    }
+  }
 
   s"$classUnderTest::createStream" should {
     "invoke createStreamAsync" in new CreateStreamContext {
@@ -200,7 +209,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
     val mockUnderlying = mock[Underlying]
     val mockConverter = mock[KinesisConverter]
     val mockFactory = mock[PromiseHandlerFactory]
-    val client = new AmazonKinesisAsyncClientWrapper(mockUnderlying, mockConverter, mockFactory)
+    val client = new AmazonKinesisClient(mockUnderlying, mockConverter, mockFactory)
     val timeout = 500.milliseconds
   }
 

@@ -9,7 +9,7 @@ import akka.pattern.pipe
 
 import scala.concurrent.Future
 
-class KinesisClient(owner: ActorRef, wrapper: AmazonKinesisAsyncWrapper) extends Actor {
+class AmazonKinesisActor(owner: ActorRef, wrapper: AmazonKinesis) extends Actor {
   import context._
 
   override def preStart(): Unit = {

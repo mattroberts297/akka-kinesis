@@ -7,3 +7,9 @@ class PromiseHandlerFactory {
     new PromiseHandler()
   }
 }
+
+object PromiseHandlerFactory {
+  def apply(): PromiseHandlerFactory = {
+    new PromiseHandlerFactory
+  }
+}

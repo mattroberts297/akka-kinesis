@@ -1,20 +1,23 @@
 package org.typedsolutions.aws.kinesis
 
 import com.amazonaws.AmazonWebServiceRequest
-import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying}
+import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
+import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying, AmazonKinesisAsyncClient => UnderlyingClient}
 import org.typedsolutions.aws.handlers.PromiseHandler
 import org.typedsolutions.aws.handlers.PromiseHandlerFactory
 import org.typedsolutions.aws.kinesis.converters.KinesisConverter
 import org.typedsolutions.aws.kinesis.model._
+import org.typedsolutions.aws.util.ExecutionContextWrapper
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class AmazonKinesisAsyncClientWrapper(
+class AmazonKinesisClient(
     val underlying: Underlying,
     val converter: KinesisConverter,
     val factory: PromiseHandlerFactory)(
-    implicit ec: ExecutionContext) extends AmazonKinesisAsyncWrapper {
+    implicit ec: ExecutionContext) extends AmazonKinesis {
   import converter._
   import factory._
 
@@ -68,5 +71,16 @@ class AmazonKinesisAsyncClientWrapper(
     val underlyingRequest = toAws(request)
     method(underlyingRequest, handler)
     handler.future.map(fromAws)
+  }
+}
+
+object AmazonKinesisClient {
+  def apply(
+      awsCredentialsProvider: AWSCredentialsProvider = new DefaultAWSCredentialsProviderChain)(implicit
+      ec: ExecutionContext): AmazonKinesisClient = {
+    new AmazonKinesisClient(
+      new UnderlyingClient(awsCredentialsProvider, new ExecutionContextWrapper(ec)),
+      new KinesisConverter,
+      new PromiseHandlerFactory)
   }
 }

@@ -8,22 +8,22 @@ case class GetShardIteratorRequest(
 
 object ShardIteratorType {
   sealed trait Value
-  case object AT_SEQUENCE_NUMBER extends Value
-  case object AFTER_SEQUENCE_NUMBER extends Value
-  case object TRIM_HORIZON extends Value
-  case object LATEST extends Value
+  case object AtSequenceNumber extends Value
+  case object AfterSequenceNumber extends Value
+  case object TrimHorizon extends Value
+  case object Latest extends Value
 
   def underlying(value: Value): String = value match {
-    case AT_SEQUENCE_NUMBER => "AT_SEQUENCE_NUMBER"
-    case AFTER_SEQUENCE_NUMBER => "AFTER_SEQUENCE_NUMBER"
-    case TRIM_HORIZON => "TRIM_HORIZON"
-    case LATEST => "LATEST"
+    case AtSequenceNumber => "AT_SEQUENCE_NUMBER"
+    case AfterSequenceNumber => "AFTER_SEQUENCE_NUMBER"
+    case TrimHorizon => "TRIM_HORIZON"
+    case Latest => "LATEST"
   }
 
   def apply(string: String): Value = string match {
-    case "AT_SEQUENCE_NUMBER" => AT_SEQUENCE_NUMBER
-    case "AFTER_SEQUENCE_NUMBER" => AFTER_SEQUENCE_NUMBER
-    case "TRIM_HORIZON" => TRIM_HORIZON
-    case "LATEST" => LATEST
+    case "AT_SEQUENCE_NUMBER" => AtSequenceNumber
+    case "AFTER_SEQUENCE_NUMBER" => AfterSequenceNumber
+    case "TRIM_HORIZON" => TrimHorizon
+    case "LATEST" => Latest
   }
 }
