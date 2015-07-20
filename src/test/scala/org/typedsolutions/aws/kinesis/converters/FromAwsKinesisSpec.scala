@@ -172,15 +172,21 @@ class FromAwsKinesisSpec extends WordSpec with Matchers {
     val testFailedRecordCount = 0
     val testShardId = "TestShardId"
     val testSequenceNumber = "TestSequenceNuber"
+    val errorCode = "ProvisionedThroughputExceededException"
+    val errorMessage = "InternalFailure"
+    val successUnderlyingPutRecordsResultEntry = new UnderlyingPutRecordsResultEntry().
+      withShardId(testShardId).
+      withSequenceNumber(testSequenceNumber)
+    val failureUnderlyingPutRecordsResultEntry = new UnderlyingPutRecordsResultEntry().
+      withErrorCode(errorCode).
+      withErrorMessage(errorMessage)
     val putRecordsResponse = PutRecordsResponse(
       testFailedRecordCount,
-      List(PutRecordsResponseSuccessEntry(
-        testShardId,
-        testSequenceNumber)))
+      List(
+        PutRecordsResponseSuccessEntry(testShardId, testSequenceNumber),
+        PutRecordsResponseFailureEntry(errorCode, errorMessage)))
     val underlyingPutRecordsResult = new UnderlyingPutRecordsResult().
       withFailedRecordCount(testFailedRecordCount).
-      withRecords(new UnderlyingPutRecordsResultEntry().
-        withShardId(testShardId).
-        withSequenceNumber(testSequenceNumber))
+      withRecords(successUnderlyingPutRecordsResultEntry, failureUnderlyingPutRecordsResultEntry)
   }
 }

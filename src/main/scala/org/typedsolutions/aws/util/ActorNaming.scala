@@ -2,7 +2,7 @@ package org.typedsolutions.aws.util
 
 import java.util.UUID
 
-object ActorNaming {
+trait ActorNaming {
   private val upperCasedChars = "([A-Z]+)".r
 
   def name[T : Manifest]: String = {
@@ -19,3 +19,5 @@ object ActorNaming {
 
   private def uuid(): UUID = UUID.randomUUID()
 }
+
+object ActorNaming extends ActorNaming

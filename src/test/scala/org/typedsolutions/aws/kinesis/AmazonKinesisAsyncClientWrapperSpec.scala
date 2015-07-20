@@ -42,7 +42,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingCreateStreamRequest, Void]()).thenReturn(handler)
-      when(mockUnderlying.createStreamAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.createStreamAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       // Act.
       val resultFuture = client.createStream(mockRequest)
       val result = Await.result(resultFuture, timeout)
@@ -58,7 +58,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingDeleteStreamRequest, Void]()).thenReturn(handler)
-      when(mockUnderlying.deleteStreamAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.deleteStreamAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       // Act.
       val resultFuture = client.deleteStream(mockRequest)
       val result = Await.result(resultFuture, timeout)
@@ -74,7 +74,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingDescribeStreamRequest, UnderlyingDescribeStreamResult]()).thenReturn(handler)
-      when(mockUnderlying.describeStreamAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.describeStreamAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       val resultFuture = client.describeStream(mockRequest)
@@ -92,7 +92,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingGetRecordsRequest, UnderlyingGetRecordsResult]()).thenReturn(handler)
-      when(mockUnderlying.getRecordsAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.getRecordsAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       val resultFuture = client.getRecords(mockRequest)
@@ -110,7 +110,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingGetShardIteratorRequest, UnderlyingGetShardIteratorResult]()).thenReturn(handler)
-      when(mockUnderlying.getShardIteratorAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.getShardIteratorAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       val resultFuture = client.getShardIterator(mockRequest)
@@ -128,7 +128,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingListStreamsRequest, UnderlyingListStreamsResult]()).thenReturn(handler)
-      when(mockUnderlying.listStreamsAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.listStreamsAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       client.listStreams(mockRequest)
@@ -143,7 +143,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingMergeShardsRequest, Void]()).thenReturn(handler)
-      when(mockUnderlying.mergeShardsAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.mergeShardsAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       // Act.
       client.mergeShards(mockRequest)
       // Assert.
@@ -157,7 +157,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingPutRecordRequest, UnderlyingPutRecordResult]()).thenReturn(handler)
-      when(mockUnderlying.putRecordAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.putRecordAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       client.putRecord(mockRequest)
@@ -172,7 +172,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingPutRecordsRequest, UnderlyingPutRecordsResult]()).thenReturn(handler)
-      when(mockUnderlying.putRecordsAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.putRecordsAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       when(mockConverter.fromAws(mockUnderlyingResponse)).thenReturn(mockResponse)
       // Act.
       client.putRecords(mockRequest)
@@ -187,7 +187,7 @@ class AmazonKinesisAsyncClientWrapperSpec extends WordSpec with Matchers with Mo
       // Arrange.
       when(mockConverter.toAws(mockRequest)).thenReturn(mockUnderlyingRequest)
       when(mockFactory.create[UnderlyingSplitShardRequest, Void]()).thenReturn(handler)
-      when(mockUnderlying.splitShardAsync(mockUnderlyingRequest, handler)).then(invokeHandler)
+      when(mockUnderlying.splitShardAsync(mockUnderlyingRequest, handler)).thenAnswer(invokeHandler)
       // Act.
       client.splitShard(mockRequest)
       // Assert.
