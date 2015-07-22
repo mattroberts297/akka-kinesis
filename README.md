@@ -1,7 +1,3 @@
-# aws-kinesis
+# kinesis4akka
 
-## TODO
-Implement converters
-Implement client
-Implement actor(s)
-More testing!
+An AWS Kinesis IO extension for Akka.

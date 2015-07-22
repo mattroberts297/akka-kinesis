@@ -1,6 +1,6 @@
 lazy val root = (project in file(".")).settings(
-  name := "aws-kinesis",
-  organization := "org.typetastic.akka",
+  name := "kinesis4akka",
+  organization := "org.typetastic",
   version := "0.1.0-SNAPSHOT",
   scalaVersion := "2.11.6",
   scalacOptions ++= Seq("-deprecation"),
