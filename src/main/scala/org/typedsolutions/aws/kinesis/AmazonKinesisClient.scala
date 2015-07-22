@@ -1,6 +1,7 @@
 package org.typedsolutions.aws.kinesis
 
 import com.amazonaws.AmazonWebServiceRequest
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.services.kinesis.{AmazonKinesisAsync => Underlying, AmazonKinesisAsyncClient => UnderlyingClient}
@@ -76,10 +77,11 @@ class AmazonKinesisClient(
 
 object AmazonKinesisClient {
   def apply(
-      awsCredentialsProvider: AWSCredentialsProvider = new DefaultAWSCredentialsProviderChain)(implicit
+      awsCredentialsProvider: AWSCredentialsProvider = new DefaultAWSCredentialsProviderChain,
+      clientConfiguration: ClientConfiguration = new ClientConfiguration())(implicit
       ec: ExecutionContext): AmazonKinesisClient = {
     new AmazonKinesisClient(
-      new UnderlyingClient(awsCredentialsProvider, new ExecutionContextWrapper(ec)),
+      new UnderlyingClient(awsCredentialsProvider, clientConfiguration, new ExecutionContextWrapper(ec)),
       new KinesisConverter,
       new PromiseHandlerFactory)
   }

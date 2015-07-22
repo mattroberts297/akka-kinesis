@@ -9,7 +9,7 @@ import akka.event.LoggingReceive
 import org.typedsolutions.aws.kinesis.model._
 import org.typedsolutions.aws.util.ActorNaming._
 
-class KinesisManager(factory: (ActorRefFactory, ActorRef) => ActorRef) extends Actor {
+class KinesisManager(factory: (ActorRefFactory, ActorRef, CreateKinesisClient) => ActorRef) extends Actor {
 
   def this() = this(KinesisManager.DefaultFactoryMethod)
 
@@ -18,23 +18,29 @@ class KinesisManager(factory: (ActorRefFactory, ActorRef) => ActorRef) extends A
   val log = Logging(system, this)
 
   override def receive: Receive = LoggingReceive {
-    // TODO: Let user specify region, endpoint or time.
-    case CreateKinesisClient => {
+    case createKinesisClient: CreateKinesisClient => {
       try {
         val commander = sender()
-        factory(context, commander)
+        factory(context, commander, createKinesisClient)
       } catch {
-        case exception: Exception => sender() ! CommandFailed(CreateKinesisClient, exception)
+        case exception: Exception => sender() ! CommandFailed(createKinesisClient, exception)
       }
     }
   }
 }
 
 object KinesisManager {
-  def DefaultFactoryMethod(factory: ActorRefFactory, commander: ActorRef): ActorRef = {
+  def DefaultFactoryMethod(
+    factory: ActorRefFactory,
+    commander: ActorRef,
+    createKinesisClient: CreateKinesisClient): ActorRef = {
+
     import factory._
+    val client = AmazonKinesisClient(clientConfiguration = createKinesisClient.configuration)
+    createKinesisClient.region.map(Region.underlying).map(client.underlying.setRegion)
+    createKinesisClient.endpoint.map(client.underlying.setEndpoint)
     factory.actorOf(
-      Props(classOf[AmazonKinesisActor], commander, AmazonKinesisClient()),
+      Props(classOf[AmazonKinesisActor], commander, client),
       uniqueName[AmazonKinesisActor])
   }
 }
