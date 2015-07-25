@@ -1,3 +1,3 @@
-# kinesis4akka
+# akka-kinesis
 
-An AWS Kinesis IO extension for Akka.
+An Akka IO extension for AWS Kinesis.
